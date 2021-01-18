@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Профайл {{ author.get_full_name }}{% endblock %}
+{% block header %}Профайл{% endblock %}
+{% block content %}
+
+    <main role="main" class="container">
+        <div class="row">
+
+            {% include "includes/left_block.html" %}
+
+            <div class="col-md-9">
+
+                {% for post in page %}
+                    {% include "includes/post_card.html" %}
+                {% endfor %}
+
+                {% include "includes/paginator.html" %}
+
+             </div>
+        </div>
+    </main>
+
+{% endblock %}

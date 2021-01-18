@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Подписки{% endblock %}
+{% include "includes/menu.html" %}
+{% block header %}Подписки{% endblock %}
+{% block content %}
+
+    <div class="container">
+
+        {% include "includes/menu.html" %}
+
+        {% if not page %}
+            <div class="card my-4">
+                <center>
+                    <h5 class="card-header">У вас всё ещё нет избранных авторов, срочно подпишитесь!</h5>
+                </center>
+            </div>
+        {% else %}
+            {% for post in page %}
+                {% include "includes/post_card.html" with post=post %}
+            {% endfor %}
+        {% endif %}
+
+        {% include "includes/paginator.html" %}
+
+    </div>
+
+{% endblock %}
