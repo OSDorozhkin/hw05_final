@@ -20,7 +20,9 @@
             {% endfor %}
         {% endif %}
 
-        {% include "includes/paginator.html" %}
+        {% if paginator.num_pages > 1 %}
+            {% include "includes/paginator.html" %}
+        {% endif %}
 
     </div>
 

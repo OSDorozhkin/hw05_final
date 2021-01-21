@@ -18,7 +18,9 @@
 
         {% cache 20 paginator_bar %}
 
-            {% include "includes/paginator.html" %}
+            {% if paginator.num_pages > 1 %}
+                {% include "includes/paginator.html" %}
+            {% endif %}
 
         {% endcache %}
 

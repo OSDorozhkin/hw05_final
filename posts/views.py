@@ -8,6 +8,7 @@ from .models import Post, Group, Follow
 from .forms import PostForm, CommentForm
 
 User = get_user_model()
+COUNT_PAGE_POSTS = 10
 
 
 def index(request):
@@ -17,7 +18,7 @@ def index(request):
     Выводит все посты, разбивая по страницам.
     """
     post_list = Post.objects.all()
-    paginator = Paginator(post_list, 10)
+    paginator = Paginator(post_list, COUNT_PAGE_POSTS)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
     return render(request, 'index.html', {'paginator': paginator,
@@ -32,7 +33,7 @@ def group_posts(request, slug):
     """
     group = get_object_or_404(Group, slug=slug)
     post_list = group.posts.all()
-    paginator = Paginator(post_list, 10)
+    paginator = Paginator(post_list, COUNT_PAGE_POSTS)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
     return render(request, 'group.html', {'paginator': paginator,
@@ -75,7 +76,7 @@ def profile(request, username):
     """
     author = get_object_or_404(User, username=username)
     post_list = author.posts.all()
-    paginator = Paginator(post_list, 10)
+    paginator = Paginator(post_list, COUNT_PAGE_POSTS)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
     post_count = post_list.count()
@@ -189,7 +190,7 @@ def follow_index(request):
     на страницы.
     """
     post_list = Post.objects.filter(author__following__user=request.user)
-    paginator = Paginator(post_list, 10)
+    paginator = Paginator(post_list, COUNT_PAGE_POSTS)
     page_number = request.GET.get('page')
     page = paginator.get_page(page_number)
     return render(request, 'follow.html', {'page': page,

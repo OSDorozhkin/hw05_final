@@ -4,13 +4,15 @@
 {% block content %}
 
     <div class="container">
-        <p>{{ group.description }}</p>
+        <p>{{ group.description|linebreaks }}</p>
 
         {% for post in page %}
             {% include "includes/post_card.html" with post=post %}
         {% endfor %}
 
-        {% include "includes/paginator.html" %}
+        {% if paginator.num_pages > 1 %}
+            {% include "includes/paginator.html" %}
+        {% endif %}
 
     </div>
 

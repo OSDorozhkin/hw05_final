@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 
-from posts.models import Post, Group
+from posts.models import Post, Group, Comment
 
 User = get_user_model()
 
@@ -17,33 +17,44 @@ class PostModelTest(TestCase):
             author=user,
             group=self.group_obj,
         )
+        self.comment = Comment(
+            post=self.post,
+            author=user,
+            text='Тестовый коммент объёмом больше пятнадцати символов',
+        )
 
-    def test_text_label(self):
-        post = self.post
-        verbose = post._meta.get_field('text').verbose_name
+    def test_post_label(self):
+        verbose = self.post._meta.get_field('text').verbose_name
         self.assertEquals(verbose, 'Текст поста')
 
     def test_text_help_text(self):
-        post = self.post
-        help_text = post._meta.get_field('text').help_text
+        help_text = self.post._meta.get_field('text').help_text
         self.assertEquals(help_text, 'Введите текст поста')
 
     def test_group_label(self):
-        post = self.post
-        verbose = post._meta.get_field('group').verbose_name
+        verbose = self.post._meta.get_field('group').verbose_name
         self.assertEquals(verbose, 'Группа')
 
     def test_group_help_text(self):
-        post = self.post
-        help_text = post._meta.get_field('group').help_text
+        help_text = self.post._meta.get_field('group').help_text
         self.assertEquals(help_text, 'Выберите группу для публикации поста')
 
-    def test_object_name_is_text_field(self):
-        post = self.post
-        expected_object_name = post.text[:15]
-        self.assertEquals(expected_object_name, str(post))
+    def test_comment_label(self):
+        verbose = self.comment._meta.get_field('text').verbose_name
+        self.assertEquals(verbose, 'Комментарий')
 
-    def test_object_name_is_title_field(self):
-        group = self.group_obj
-        expected_object_name = group.title
-        self.assertEquals(expected_object_name, str(group))
+    def test_comment_help_text(self):
+        help_text = self.comment._meta.get_field('text').help_text
+        self.assertEquals(help_text, 'Введите текст комментария')
+
+    def test_object_name_is_post_text_field(self):
+        expected_object_name = self.post.text[:15]
+        self.assertEquals(expected_object_name, str(self.post))
+
+    def test_object_name_is_group_title_field(self):
+        expected_object_name = self.group_obj.title
+        self.assertEquals(expected_object_name, str(self.group_obj))
+
+    def test_object_name_is_comment_text_field(self):
+        expected_object_name = self.comment.text[:15]
+        self.assertEquals(expected_object_name, str(self.comment))

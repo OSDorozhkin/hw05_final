@@ -29,7 +29,7 @@ class Post(models.Model):
         return self.text[:15]
 
     class Meta:
-        ordering = ['-pub_date']
+        ordering = ('-pub_date',)
 
 
 class Comment(models.Model):
@@ -41,8 +41,11 @@ class Comment(models.Model):
                             help_text='Введите текст комментария')
     created = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return self.text[:15]
+
     class Meta:
-        ordering = ['-created']
+        ordering = ('-created',)
 
 
 class Follow(models.Model):

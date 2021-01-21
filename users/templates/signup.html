@@ -9,12 +9,11 @@
             <div class="card-header">Зарегистрироваться</div>
             <div class="card-body">
 
-                    {% for error in form.errors %}
-                        <div class="alert alert-danger" role="alert">
-                            {{ error }}
-                        </div>
-                    {% endfor %}
-
+                {% for error in form.errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ error|escape }}
+                    </div>
+                {% endfor %}
 
                 <form method="post" action="{% url 'signup' %}">
                     {% csrf_token %}
@@ -37,9 +36,9 @@
                             </button>
                     </div>
                 </form>
-            </div> <!-- card body -->
-        </div> <!-- card -->
-    </div> <!-- col -->
-</div> <!-- row -->
+            </div>
+        </div>
+    </div>
+</div>
 
 {% endblock %}
