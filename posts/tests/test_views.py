@@ -9,28 +9,9 @@ from django import forms
 from django.core.cache import cache
 
 from posts.models import Group, Post, Follow
+from . import constants as ct
 
 User = get_user_model()
-USERNAME1 = 'pushkin'
-USERNAME2 = 'gogol'
-SLUG1 = 'test_slug1'
-SLUG2 = 'test_slug2'
-INDEX_URL = reverse('index')
-NEW_POST_URL = reverse('new_post')
-GROUP_URL1 = reverse('group_page', kwargs={'slug': SLUG1})
-GROUP_URL2 = reverse('group_page', kwargs={'slug': SLUG2})
-PROFILE_URL1 = reverse('profile', kwargs={'username': USERNAME1})
-PROFILE_URL2 = reverse('profile', kwargs={'username': USERNAME2})
-FOLLOW_URL = reverse('follow_index')
-PROFILE_FOLLOW_URL = reverse('profile_follow', kwargs={'username': USERNAME1})
-PROFILE_UNFOLLOW_URL = reverse('profile_unfollow',
-                               kwargs={'username': USERNAME1})
-SMALL_GIF = (b'\x47\x49\x46\x38\x39\x61\x02\x00'
-             b'\x01\x00\x80\x00\x00\x00\x00\x00'
-             b'\xFF\xFF\xFF\x21\xF9\x04\x00\x00'
-             b'\x00\x00\x00\x2C\x00\x00\x00\x00'
-             b'\x02\x00\x01\x00\x00\x02\x02\x0C'
-             b'\x0A\x00\x3B')
 
 
 class PostPagesTests(TestCase):
@@ -48,23 +29,23 @@ class PostPagesTests(TestCase):
         self.guest_client = Client()
         self.authorized_client1 = Client()
         self.authorized_client2 = Client()
-        self.user1 = User.objects.create(username=USERNAME1)
-        self.user2 = User.objects.create(username=USERNAME2)
+        self.user1 = User.objects.create(username=ct.USERNAME1)
+        self.user2 = User.objects.create(username=ct.USERNAME2)
         self.authorized_client1.force_login(self.user1)
         self.authorized_client2.force_login(self.user2)
         uploaded = SimpleUploadedFile(
             name='small.gif',
-            content=SMALL_GIF,
+            content=ct.SMALL_GIF,
             content_type='image/gif')
         Group.objects.create(
             title='Имя группы',
             description='Текст',
-            slug=SLUG1,
+            slug=ct.SLUG1,
         )
         self.group_obj2 = Group.objects.create(
             title='Название',
             description='Описание',
-            slug=SLUG2,
+            slug=ct.SLUG2,
         )
         self.post = Post.objects.create(
             text='Тестовый текст',
@@ -77,28 +58,28 @@ class PostPagesTests(TestCase):
             author=self.user2,
         )
         self.post_edit_url = reverse(
-            'post_edit', kwargs={'username': USERNAME2,
+            'post_edit', kwargs={'username': ct.USERNAME2,
                                  'post_id': self.post.id})
-        self.post_url = reverse('post', kwargs={'username': USERNAME2,
+        self.post_url = reverse('post', kwargs={'username': ct.USERNAME2,
                                                 'post_id': self.post.id})
         self.templates_pages_name_no_form = {
-            INDEX_URL: ('index.html', 'page'),
-            GROUP_URL2: ('group.html', 'page'),
-            PROFILE_URL2: ('profile.html', 'page'),
-            FOLLOW_URL: ('follow.html', 'page')
+            ct.INDEX: ('index.html', 'page'),
+            ct.GROUP2: ('group.html', 'page'),
+            ct.PROFILE2: ('profile.html', 'page'),
+            ct.FOLLOW: ('follow.html', 'page')
         }
         self.templates_pages_name_post = {
             self.post_url: ('post.html', 'post'),
         }
         self.templates_pages_name_form = {
-            NEW_POST_URL: ('new_post.html', 'form'),
+            ct.NEW_POST: ('new_post.html', 'form'),
             self.post_edit_url: ('new_post.html', 'form'),
         }
 
     def test_new_page_show_correct_context(self):
         """Проверка словаря контекста страницы создания поста."""
-        response = self.authorized_client2.get(NEW_POST_URL)
-        context = self.templates_pages_name_form[NEW_POST_URL][1]
+        response = self.authorized_client2.get(ct.NEW_POST)
+        context = self.templates_pages_name_form[ct.NEW_POST][1]
         form_fields = {
             'text': forms.fields.CharField,
             'group': forms.fields.ChoiceField,
@@ -163,33 +144,33 @@ class PostPagesTests(TestCase):
 
     def test_group_pages_show_correct_posts(self):
         """Чекаем, что пост не попал в группу, для которой не предназначен."""
-        response = self.authorized_client1.get(GROUP_URL1)
+        response = self.authorized_client1.get(ct.GROUP1)
         self.assertIsNone(response.context.get('post'))
 
     def test_index_cash(self):
         """ Проверка кэширования главной страницы """
-        html_0 = self.guest_client.get(INDEX_URL)
+        html_0 = self.guest_client.get(ct.INDEX)
         Post.objects.create(
             text='Тестовый текст2',
             author=self.user1,
             group=self.group_obj2,
         )
-        html_1 = self.guest_client.get(INDEX_URL)
+        html_1 = self.guest_client.get(ct.INDEX)
         self.assertHTMLEqual(str(html_0.content), str(html_1.content))
         cache.clear()
-        html_0 = self.guest_client.get(INDEX_URL)
+        html_0 = self.guest_client.get(ct.INDEX)
         self.assertHTMLNotEqual(str(html_0.content), str(html_1.content))
 
     def test_following_and_unfollowing(self):
         """Авторизованный пользователь может подписываться и отписываться."""
-        response = self.authorized_client2.get(PROFILE_FOLLOW_URL)
+        response = self.authorized_client2.get(ct.PROFILE_FOLLOW)
         follow = self.user2.follower.get(author=self.user1)
-        self.assertRedirects(response, PROFILE_URL1)
+        self.assertRedirects(response, ct.PROFILE1)
         self.assertEqual(follow.author, self.user1, 'Подписка не создалась')
         count_follow1 = self.user2.follower.filter(author=self.user1).count()
-        response = self.authorized_client2.get(PROFILE_UNFOLLOW_URL)
+        response = self.authorized_client2.get(ct.PROFILE_UNFOLLOW)
         count_follow2 = self.user2.follower.filter(author=self.user1).count()
-        self.assertRedirects(response, PROFILE_URL1)
+        self.assertRedirects(response, ct.PROFILE1)
         self.assertNotEqual(count_follow1, count_follow2,
                             'Не получилось отписаться')
 
@@ -204,7 +185,7 @@ class PostPagesTests(TestCase):
             author=self.user1,
             group=self.group_obj2,
         )
-        response1 = self.authorized_client2.get(FOLLOW_URL)
-        response2 = self.authorized_client1.get(FOLLOW_URL)
+        response1 = self.authorized_client2.get(ct.FOLLOW)
+        response2 = self.authorized_client1.get(ct.FOLLOW)
         self.assertEqual(response1.context.get('post'), following_post)
         self.assertNotEqual(response2.context.get('post'), following_post)

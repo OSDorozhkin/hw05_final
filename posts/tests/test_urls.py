@@ -3,22 +3,16 @@ from django.contrib.auth import get_user_model
 from django.urls import reverse
 
 from posts.models import Group, Post
+from . import constants as ct
 
 User = get_user_model()
-USERNAME = 'gogol'
-SLUG = 'test_slug'
-INDEX_URL = reverse('index')
-NEW_POST_URL = reverse('new_post')
-GROUP_URL = reverse('group_page', kwargs={'slug': SLUG})
-PROFILE_URL = reverse('profile', kwargs={'username': USERNAME})
-FOLLOW_URL = reverse('follow_index')
 
 
 class PostURLTests(TestCase):
     def setUp(self):
         self.guest_client = Client()
-        self.user1 = User.objects.create_user(username='Pushkin')
-        self.user2 = User.objects.create(username=USERNAME)
+        self.user1 = User.objects.create_user(username=ct.USERNAME1)
+        self.user2 = User.objects.create(username=ct.USERNAME2)
         self.authorized_client1 = Client()
         self.authorized_client2 = Client()
         self.authorized_client1.force_login(self.user1)
@@ -26,30 +20,29 @@ class PostURLTests(TestCase):
         group_obj = Group.objects.create(
             title='Тестовый заголовок',
             description='Тестовый текст',
-            slug=SLUG
+            slug=ct.SLUG1
         )
         self.post = Post.objects.create(
-            id=12,
             text='Тестовый текст',
             author=self.user2,
             group=group_obj,
         )
-        post_edit_url = reverse('post_edit', kwargs={'username': USERNAME,
+        post_edit_url = reverse('post_edit', kwargs={'username': ct.USERNAME2,
                                                      'post_id': self.post.id})
-        post_url = reverse('post', kwargs={'username': USERNAME,
+        post_url = reverse('post', kwargs={'username': ct.USERNAME2,
                                            'post_id': self.post.id})
         self.templates_url_authorized_r = {
             post_edit_url: ('new_post.html', post_url)
         }
         self.templates_url_authorized = {
-            NEW_POST_URL: ('new_post.html',
-                           '/auth/login/?next=' + NEW_POST_URL),
-            FOLLOW_URL: ('follow.html', '/auth/login/?next=' + FOLLOW_URL)
+            ct.NEW_POST: ('new_post.html',
+                          '/auth/login/?next=' + ct.NEW_POST),
+            ct.FOLLOW: ('follow.html', '/auth/login/?next=' + ct.FOLLOW)
         }
         self.templates_url_guest = {
-            INDEX_URL: ('index.html',),
-            GROUP_URL: ('group.html',),
-            PROFILE_URL: ('profile.html',),
+            ct.INDEX: ('index.html',),
+            ct.GROUP1: ('group.html',),
+            ct.PROFILE2: ('profile.html',),
             post_url: ('post.html',),
         }
 

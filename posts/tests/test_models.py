@@ -2,16 +2,19 @@ from django.test import TestCase
 from django.contrib.auth import get_user_model
 
 from posts.models import Post, Group, Comment
+from . import constants as ct
 
 User = get_user_model()
 
 
 class PostModelTest(TestCase):
     def setUp(self):
-        user = User.objects.create(id=55)
+        user = User.objects.create(username=ct.USERNAME1)
         self.group_obj = Group.objects.create(
-            title='Тестовая группа',
-            slug='/test/')
+            title='Имя группы',
+            description='Текст',
+            slug=ct.SLUG1,
+        )
         self.post = Post.objects.create(
             text='Тестовый текст объёмом больше пятнадцати символов',
             author=user,

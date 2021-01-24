@@ -7,19 +7,9 @@ from django.urls import reverse
 from django.contrib.auth import get_user_model
 
 from posts.models import Post, Group
+from . import constants as ct
 
 User = get_user_model()
-USERNAME = 'pushkin'
-SLUG = 'test_slug'
-INDEX_URL = reverse('index')
-NEW_POST_URL = reverse('new_post')
-GROUP_URL = reverse('group_page', kwargs={'slug': SLUG})
-SMALL_GIF = (b'\x47\x49\x46\x38\x39\x61\x02\x00'
-             b'\x01\x00\x80\x00\x00\x00\x00\x00'
-             b'\xFF\xFF\xFF\x21\xF9\x04\x00\x00'
-             b'\x00\x00\x00\x2C\x00\x00\x00\x00'
-             b'\x02\x00\x01\x00\x00\x02\x02\x0C'
-             b'\x0A\x00\x3B')
 
 
 class PostFormTests(TestCase):
@@ -36,16 +26,16 @@ class PostFormTests(TestCase):
     def setUp(self):
         self.guest_client = Client()
         self.authorized_client = Client()
-        self.user = User.objects.create_user(username=USERNAME)
+        self.user = User.objects.create_user(username=ct.USERNAME1)
         self.authorized_client.force_login(self.user)
         self.uploaded = SimpleUploadedFile(
             name='small.gif',
-            content=SMALL_GIF,
+            content=ct.SMALL_GIF,
             content_type='image/gif')
         self.group_obj = Group.objects.create(
             title='Имя группы',
             description='Текст',
-            slug=SLUG,
+            slug=ct.SLUG1,
         )
         self.post = Post.objects.create(
             text='1. Тестовый текст без изменений',
@@ -74,12 +64,12 @@ class PostFormTests(TestCase):
             'image': self.uploaded,
         }
         response = self.authorized_client.post(
-            NEW_POST_URL,
+            ct.NEW_POST,
             data=form_data,
             follow=True,
         )
         self.assertEquals(Post.objects.count(), posts_count)
-        self.assertRedirects(response, INDEX_URL)
+        self.assertRedirects(response, ct.INDEX)
 
     def test_edit_post_form(self):
         """Тест формы редактирования поста."""

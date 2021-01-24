@@ -1,29 +1,21 @@
 from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
-from django.urls import reverse
 
 from posts.models import Post, Group, Follow
+from . import constants as ct
 
 User = get_user_model()
-USERNAME2 = 'gogol'
-SLUG = 'test_slug'
-INDEX_URL = reverse('index')
-GROUP_URL = reverse('group_page', kwargs={'slug': SLUG})
-PROFILE_URL = reverse('profile', kwargs={'username': USERNAME2})
-FOLLOW_URL = reverse('follow_index')
 
 
 class PaginatorViewsTest(TestCase):
     def setUp(self):
         self.authorized_client = Client()
-        user1 = User.objects.create(username='pushkin')
-        user2 = User.objects.create(username=USERNAME2)
+        user1 = User.objects.create(username=ct.USERNAME1)
+        user2 = User.objects.create(username=ct.USERNAME2)
         self.authorized_client.force_login(user1)
-        Follow.objects.create(
-            user=user1,
-            author=user2
-        )
-        group_obj = Group.objects.create(title='Тестовая группа', slug=SLUG)
+        Follow.objects.create(user=user1, author=user2)
+        group_obj = Group.objects.create(title='Тестовая группа',
+                                         slug=ct.SLUG1)
         number_of_posts = 13
         posts = [
             Post(
@@ -35,10 +27,10 @@ class PaginatorViewsTest(TestCase):
         ]
         Post.objects.bulk_create(posts)
         self.templates_pages_name = {
-            'INDEX_URL': INDEX_URL,
-            'GROUP_URL': GROUP_URL,
-            'PROFILE_URL': PROFILE_URL,
-            'FOLLOW_URL': FOLLOW_URL,
+            'INDEX_URL': ct.INDEX,
+            'GROUP_URL': ct.GROUP1,
+            'PROFILE_URL': ct.PROFILE2,
+            'FOLLOW_URL': ct.FOLLOW,
         }
 
     def test_first_page_contains_ten_records(self):
